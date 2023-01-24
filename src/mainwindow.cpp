@@ -8,6 +8,7 @@
 #include "mainwindow.h"
 
 #include <QDebug>
+#include <QFile>
 #include <QMenu>
 #include <QMessageBox>
 
@@ -28,6 +29,15 @@ MainWindow::MainWindow(QWidget *parent)
 {
   // ******* Setup the Ui and MainWindow *******
   ui->setupUi(this);
+
+  // TODO read this from a settings file..
+//  QFile file("dark-theme.css");
+//  file.open(QFile::ReadOnly);
+//  if (file.isReadable())
+//  {
+//    const QString styleSheet = QLatin1String(file.readAll());
+//    qApp->setStyleSheet(styleSheet);
+//  }
 
   // File Menu
   QMenu* fileMenu = ui->menubar->addMenu("File");
