@@ -12,11 +12,14 @@
 #include <QMenu>
 #include <QMessageBox>
 
+#include "mainapp.h"
+#include "commmanager.h"
+
 #include "ui_mainwindow.h"
 
 namespace
 {
-  const QString VERSION = "0.0.0.1";
+  const QString VERSION = "0.0.0.2";
   const QString ABOUT = "Network Watcher is a tool to monitor traffic over an ActiveMQ broker.";
 }
 
@@ -29,39 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
   // ******* Setup the Ui and MainWindow *******
   ui->setupUi(this);
-
-  // TODO read this from a settings file..
-//  QFile file("dark-theme.css");
-//  file.open(QFile::ReadOnly);
-//  if (file.isReadable())
-//  {
-//    const QString styleSheet = QLatin1String(file.readAll());
-//    qApp->setStyleSheet(styleSheet);
-//  }
-
-  // File Menu
-  QMenu* fileMenu = ui->menubar->addMenu("File");
-
-  QAction* quitAction = new QAction("Quit", this);
-  quitAction->setStatusTip(tr("Quit this Game"));
-  connect(quitAction, &QAction::triggered, this, &MainWindow::close);
-
-  // Add the actions to file
-  fileMenu->addAction(quitAction);
-
-  // Settings Menu
-  QMenu* settingsMenu = ui->menubar->addMenu("Settings");
-
-  // Help Menu
-  QMenu* helpMenu = ui->menubar->addMenu("Help");
-
-  // Actions for the help menu
-  QAction* aboutMeAction = new QAction("About NetworkWatcher", this);
-  aboutMeAction->setStatusTip("Learn more!");
-  connect(aboutMeAction, &QAction::triggered, this, &MainWindow::aboutThisApp);
-
-  // Add the action to help
-  helpMenu->addAction(aboutMeAction);
+  init();
 }
 
 // ----------------------------------------------------------------
@@ -87,4 +58,60 @@ void MainWindow::aboutThisApp(void)
 
   msgBox.setText(msg);
   msgBox.exec();
+}
+
+// ----------------------------------------------------------------
+// updateNetworkStatus
+// ----------------------------------------------------------------
+void MainWindow::updateNetworkStatus(const constants::network::Status e)
+{
+  if (ui)
+  {
+    ui->status_value->setText(constants::network::toString(e));
+  }
+}
+
+// ----------------------------------------------------------------
+// init
+// ----------------------------------------------------------------
+void MainWindow::init(void)
+{
+  // Get the default settings from mainapp
+  if (MainApplication* mainApp = dynamic_cast<MainApplication*>(QApplication::instance()))
+  {
+    QPair<QString,QString> networkDetails = mainApp->getDefaultNetworkDetails();
+    ui->broker_lineEdit->setText( networkDetails.first );
+    ui->broker_port_lineEdit->setText( networkDetails.second );
+  }
+
+  // File Menu
+  QMenu* fileMenu = ui->menubar->addMenu("File");
+
+  QAction* quitAction = new QAction("Quit", this);
+  quitAction->setStatusTip(tr("Quit this Game"));
+  connect(quitAction, &QAction::triggered, this, &MainWindow::close);
+
+  // Add the actions to file
+  fileMenu->addAction(quitAction);
+
+  // Settings Menu
+  QMenu* settingsMenu = ui->menubar->addMenu("Settings");
+
+  // Help Menu
+  QMenu* helpMenu = ui->menubar->addMenu("Help");
+
+  // Actions for the help menu
+  QAction* aboutMeAction = new QAction("About NetworkWatcher", this);
+  aboutMeAction->setStatusTip("Learn more!");
+  connect(aboutMeAction, &QAction::triggered, this, &MainWindow::aboutThisApp);
+
+  // Add the action to help
+  helpMenu->addAction(aboutMeAction);
+
+  // Start the comm managers
+  // Consumer and Producer
+  CommManager& rCommMgr = CommManager::instance();
+  rCommMgr.setBrokerDetails(ui->broker_lineEdit->text(), ui->broker_port_lineEdit->text());
+  connect(&rCommMgr, &CommManager::networkStatusUpdate, this, &MainWindow::updateNetworkStatus);
+  rCommMgr.start();
 }

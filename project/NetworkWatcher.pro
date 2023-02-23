@@ -29,6 +29,11 @@ HEADERS += ../src/*.h \
 
 FORMS += ../src/ui/*.ui \
 
+INCLUDEPATH += ../dependencies/activemq-cpp-library-3.9.5/src/main
+               ../dependencies/apr-1.7.0 \
+
+#LIBS += ../dependencies/activemq-cpp-library-3.9.5/src/main/cms/*.cpp \
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin

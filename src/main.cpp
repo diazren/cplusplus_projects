@@ -5,14 +5,10 @@
 //# DATE: 01/23/2023
 //# ----------------------------------------------------------------
 
-#include "mainwindow.h"
-
-#include <QApplication>
+#include "mainapp.h"
 
 int main(int argc, char *argv[])
 {
-  QApplication a(argc, argv);
-  MainWindow w;
-  w.show();
-  return a.exec();
+  MainApplication _app(argc, argv);
+  return _app.exec();
 }
